@@ -1,0 +1,6 @@
+reportlab
+pdfplumber
+pytesseract
+pillow
+tkinterdnd2
+watchdog
