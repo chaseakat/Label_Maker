@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latest Labels</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <h1>Latest Cached Labels</h1>
+      <p>Open each PDF and use your browser's print action in the PDF viewer.</p>
+      {% for name in files %}
+        <p><a href="{{ url_for('latest_label_file', filename=name) }}" target="_blank" rel="noopener">{{ name }}</a></p>
+      {% endfor %}
+      <p><a href="{{ url_for('index') }}">Back to Dashboard</a></p>
+    </section>
+  </main>
+</body>
+</html>

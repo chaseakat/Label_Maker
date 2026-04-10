@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Label Generator Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Work Order Label Generator</h1>
+      <p>Upload a work order and logo, then generate 4x6 and 2.5x6 labels using your Python logic.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <section class="alerts">
+          {% for category, message in messages %}
+            <div class="alert {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    {% endwith %}
+
+    <section class="panel">
+      <form action="{{ url_for('run_generation') }}" method="post" enctype="multipart/form-data">
+        <label>
+          Work Order PDF or Image
+          <input type="file" name="workorder_file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tif,.tiff,.webp" required />
+        </label>
+
+        <label>
+          Logo Image (preferred)
+          <input type="file" name="logo_image" accept=".png,.jpg,.jpeg,.bmp,.webp" />
+        </label>
+
+        <label>
+          Logo Zip (alternative)
+          <input type="file" name="logo_zip" accept=".zip" />
+        </label>
+
+        <p><strong>Saved Logo:</strong> {{ persisted_logo_label }}</p>
+
+        <label>
+          Output Directory
+          <input type="text" name="output_dir" value="{{ default_output_dir }}" />
+        </label>
+
+        <label>
+          Job Number Override (optional)
+          <input type="text" name="job_number_override" placeholder="Example: 123456 or #123456" />
+        </label>
+
+        <label>
+          Job Name Override (optional)
+          <input type="text" name="job_name_override" placeholder="Example: Smith Kitchen Remodel" />
+        </label>
+
+        <button type="submit">Generate Labels</button>
+        <a class="btn secondary" href="{{ url_for('print_latest_labels') }}">Print</a>
+        <a class="btn secondary" href="{{ url_for('view_latest_labels') }}">View Latest Labels</a>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Manual Label Builder</h2>
+      <form action="{{ url_for('manual_generation') }}" method="post" enctype="multipart/form-data">
+        <label>
+          Job Number
+          <input type="text" name="manual_job_number" placeholder="Example: #131513" />
+        </label>
+
+        <label>
+          Job Name
+          <input type="text" name="manual_job_name" placeholder="Example: Smith Kitchen Remodel" />
+        </label>
+
+        <label>
+          Item Label
+          <input type="text" name="manual_item_label" placeholder="Example: Item 4.2" required />
+        </label>
+
+        <label>
+          Description
+          <input type="text" name="manual_description" placeholder="Example: BASE CABINET" />
+        </label>
+
+        <label>
+          Quantity
+          <input type="text" name="manual_quantity" value="1" />
+        </label>
+
+        <label>
+          Label Size
+          <select name="manual_label_size">
+            <option value="auto">Auto (keyword routing)</option>
+            <option value="4x6">4x6</option>
+            <option value="2.5x6">2.5x6</option>
+          </select>
+        </label>
+
+        <label>
+          Replace Saved Logo (optional image)
+          <input type="file" name="manual_logo_image" accept=".png,.jpg,.jpeg,.bmp,.webp" />
+        </label>
+
+        <label>
+          Replace Saved Logo (optional zip)
+          <input type="file" name="manual_logo_zip" accept=".zip" />
+        </label>
+
+        <label>
+          Output Directory
+          <input type="text" name="manual_output_dir" value="{{ default_output_dir }}" />
+        </label>
+
+        <button type="submit">Generate Manual Label</button>
+        <a class="btn secondary" href="{{ url_for('print_latest_labels') }}">Print</a>
+        <a class="btn secondary" href="{{ url_for('view_latest_labels') }}">View Latest Labels</a>
+      </form>
+    </section>
+
+    {% if latest_result_id and latest_files %}
+      <section class="panel">
+        <h2>Latest Cached Labels</h2>
+        <p>Stored short-term for printing in this browser session.</p>
+        {% for name in latest_files %}
+          <p><a href="{{ url_for('latest_label_file', filename=name) }}" target="_blank" rel="noopener">{{ name }}</a></p>
+        {% endfor %}
+      </section>
+    {% endif %}
+  </main>
+</body>
+</html>
