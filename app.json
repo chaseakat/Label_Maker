@@ -1,0 +1,6 @@
+{
+  "title": "Work Order Label Generator",
+  "description": "Generate 4x6 and 2.5x6 production labels from one or more work order documents with deduplication and print-ready output.",
+  "category": "Productivity",
+  "icon": "icon.svg"
+}

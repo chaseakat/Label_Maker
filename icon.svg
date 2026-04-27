@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Work Order Label Generator icon">
+  <rect width="512" height="512" rx="112" fill="#F3FAFF"/>
+  <rect x="56" y="56" width="400" height="400" rx="84" fill="#1E90FF"/>
+  <rect x="112" y="124" width="288" height="264" rx="32" fill="#FFFFFF"/>
+  <rect x="146" y="168" width="220" height="22" rx="11" fill="#1E90FF"/>
+  <rect x="146" y="208" width="168" height="18" rx="9" fill="#66B5FF"/>
+  <rect x="146" y="238" width="132" height="18" rx="9" fill="#66B5FF"/>
+  <rect x="146" y="292" width="116" height="54" rx="14" fill="#1E90FF"/>
+  <rect x="274" y="292" width="92" height="54" rx="14" fill="#FF8A3D"/>
+  <circle cx="362" cy="136" r="28" fill="#FF8A3D"/>
+  <path d="M349 136h26M362 123v26" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+</svg>
