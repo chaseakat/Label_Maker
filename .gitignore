@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+uploads/
+results/
+generated_labels/
+persistent_logo/
+__logo_cache__/
+__logo_extract__/
+server.log
+J:/
+J:\\Labels/
