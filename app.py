@@ -8,7 +8,7 @@ from pathlib import Path
 from flask import Flask, abort, flash, redirect, render_template, request, send_file, session, url_for
 from werkzeug.utils import secure_filename
 
-from label_engine import LabelRunConfig, generate_manual_labels, run_label_generation
+from label_engine import LabelRunConfig, generate_manual_labels, run_label_generation, run_multi_label_generation
 
 
 app = Flask(__name__)
@@ -167,7 +167,7 @@ def index():
 
 @app.route("/run", methods=["POST"])
 def run_generation():
-    workorder = request.files.get("workorder_file")
+    workorders = [f for f in request.files.getlist("workorder_file") if f and f.filename]
     logo_image = request.files.get("logo_image")
     logo_zip = request.files.get("logo_zip")
 
@@ -177,13 +177,14 @@ def run_generation():
     output_path = Path(output_dir).expanduser().resolve()
     output_path.mkdir(parents=True, exist_ok=True)
 
-    if not workorder or not workorder.filename:
-        flash("Please upload a work order PDF or image.", "error")
+    if not workorders:
+        flash("Please upload at least one work order PDF or image.", "error")
         return redirect(url_for("index"))
 
-    if not allowed_file(workorder.filename):
-        flash("Invalid work order file type.", "error")
-        return redirect(url_for("index"))
+    for workorder in workorders:
+        if not allowed_file(workorder.filename):
+            flash(f"Invalid work order file type: {workorder.filename}", "error")
+            return redirect(url_for("index"))
 
     persisted_logo_image, persisted_logo_zip = get_persisted_logo_paths()
     has_new_logo = (logo_image and logo_image.filename) or (logo_zip and logo_zip.filename)
@@ -196,9 +197,12 @@ def run_generation():
     run_upload_dir = UPLOAD_DIR / run_id
     run_upload_dir.mkdir(parents=True, exist_ok=True)
 
-    workorder_name = secure_filename(workorder.filename)
-    workorder_path = run_upload_dir / workorder_name
-    workorder.save(workorder_path)
+    workorder_paths = []
+    for idx, workorder in enumerate(workorders, start=1):
+        workorder_name = secure_filename(workorder.filename)
+        workorder_path = run_upload_dir / f"{idx:02d}_{workorder_name}"
+        workorder.save(workorder_path)
+        workorder_paths.append(str(workorder_path))
 
     logo_image_path = None
     logo_zip_path = None
@@ -216,12 +220,20 @@ def run_generation():
     )
 
     try:
-        result = run_label_generation(
-            str(workorder_path),
-            config,
-            job_number_override=job_number_override or None,
-            job_name_override=job_name_override or None,
-        )
+        if len(workorder_paths) == 1:
+            result = run_label_generation(
+                workorder_paths[0],
+                config,
+                job_number_override=job_number_override or None,
+                job_name_override=job_name_override or None,
+            )
+        else:
+            result = run_multi_label_generation(
+                workorder_paths,
+                config,
+                job_number_override=job_number_override or None,
+                job_name_override=job_name_override or None,
+            )
     except Exception as exc:
         flash(f"Run failed: {exc}", "error")
         return redirect(url_for("index"))
@@ -241,7 +253,12 @@ def run_generation():
         return redirect(url_for("index"))
 
     _, cached_names = cache_output_files(output_files)
-    flash(f"Labels generated and cached ({len(cached_names)} file(s)). Use Print or View Latest Labels.", "success")
+    flash(
+        f"Processed {result.get('files_processed', 1)} file(s). "
+        f"Labels generated and cached ({len(cached_names)} file(s)). "
+        "Use Print or View Latest Labels.",
+        "success",
+    )
     return redirect(url_for("index"))
 
 

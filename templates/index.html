@@ -26,8 +26,8 @@
     <section class="panel">
       <form action="{{ url_for('run_generation') }}" method="post" enctype="multipart/form-data">
         <label>
-          Work Order PDF or Image
-          <input type="file" name="workorder_file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tif,.tiff,.webp" required />
+          Work Order PDF or Image(s)
+          <input type="file" name="workorder_file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tif,.tiff,.webp" multiple required />
         </label>
 
         <label>

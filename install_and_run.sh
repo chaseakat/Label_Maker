@@ -13,6 +13,17 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if git remote get-url origin >/dev/null 2>&1; then
+    if [ -n "$(git status --porcelain)" ]; then
+      echo "Local changes detected; skipping git pull to avoid conflicts."
+      echo "Commit/stash changes or run pull manually, then rerun."
+    else
+      git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)"
+    fi
+  fi
+fi
+
 if ! command -v tesseract >/dev/null 2>&1; then
   if command -v apt-get >/dev/null 2>&1; then
     apt-get update
